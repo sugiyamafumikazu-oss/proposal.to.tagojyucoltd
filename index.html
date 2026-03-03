@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>株式会社田子重 外国人技能実習生 受入促進プロジェクト</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 400px;
+            }
+        }
+        body {
+            font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif;
+        }
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="bg-stone-50 text-stone-800 antialiased">
+
+    <!-- Chosen Palette: Warm Neutrals with Fresh Emerald/Green accents (reflecting supermarket/freshness and corporate stability). Backgrounds in stone-50/100, typography in stone-800, highlights in emerald-600/700. -->
+    
+    <!-- Application Structure Plan: The SPA uses a top-navigation dashboard layout divided into 4 key phases: 1. Background/Data (Why do this?), 2. Deployment Plan (Where will they work?), 3. Roadmap (How do we do it?), 4. Simulation (What is the impact?). This structure guides the user logically from recognizing the problem to visualizing the solution, understanding the process, and finally seeing the quantitative impact, ensuring a persuasive and easily digestible narrative for stakeholders. -->
+
+    <!-- Visualization & Content Choices: 
+    1. Labor Trend -> Goal: Inform -> Viz: Line Chart (Chart.js) -> Justification: Clearly shows the widening gap between job openings and applicants over time.
+    2. Age Demographics -> Goal: Compare/Inform -> Viz: Bar Chart (Chart.js) -> Justification: Highlights the aging workforce and the need for young talent.
+    3. Role Allocation -> Goal: Organize/Inform -> Viz: Doughnut Chart (Chart.js) + Interactive Cards -> Justification: Shows proportion of placements, cards provide drill-down specifics without clutter.
+    4. Implementation Roadmap -> Goal: Change/Process -> Viz: Interactive Vertical Timeline (HTML/Tailwind + JS) -> Justification: Breaks down complex legal/logistical steps into digestible pieces. NO SVG used.
+    5. ROI Simulator -> Goal: Inform/Interact -> Viz: Interactive Sliders & dynamic text (JS) -> Justification: Allows stakeholders to personalize the data and see immediate tangible outcomes. -->
+    
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+    <nav class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <span class="text-2xl mr-2 text-emerald-700">&#127811;</span>
+                    <span class="font-bold text-xl tracking-tight text-stone-800">田子重 実習生受入PJ</span>
+                </div>
+            </div>
+            <div class="flex space-x-8 overflow-x-auto hide-scrollbar pb-2 sm:pb-0" id="nav-container">
+                <button onclick="switchTab('sec-background')" id="nav-sec-background" class="nav-btn whitespace-nowrap py-4 px-1 border-b-2 border-emerald-500 font-medium text-sm text-emerald-700">導入の背景と課題</button>
+                <button onclick="switchTab('sec-deployment')" id="nav-sec-deployment" class="nav-btn whitespace-nowrap py-4 px-1 border-b-2 border-transparent font-medium text-sm text-stone-500 hover:text-stone-700 hover:border-stone-300">配置計画と業務</button>
+                <button onclick="switchTab('sec-roadmap')" id="nav-sec-roadmap" class="nav-btn whitespace-nowrap py-4 px-1 border-b-2 border-transparent font-medium text-sm text-stone-500 hover:text-stone-700 hover:border-stone-300">受入ロードマップ</button>
+                <button onclick="switchTab('sec-simulation')" id="nav-sec-simulation" class="nav-btn whitespace-nowrap py-4 px-1 border-b-2 border-transparent font-medium text-sm text-stone-500 hover:text-stone-700 hover:border-stone-300">効果シミュレーション</button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+        <div id="sec-background" class="view-section animate-fade-in">
+            <div class="mb-8">
+                <h2 class="text-3xl font-bold text-stone-800 mb-4">なぜ今、外国人技能実習生なのか？</h2>
+                <p class="text-lg text-stone-600 leading-relaxed bg-white p-6 rounded-xl shadow-sm border border-stone-100">
+                    静岡県中部を地盤とするスーパー田子重において、地域密着の高品質なサービスを維持するためには「安定した労働力の確保」が急務です。県内の小売・食品製造業における有効求人倍率は高止まりしており、同時に従業員の高齢化も進行しています。技能実習制度（および今後の育成就労制度）の活用は、単なる労働力不足の解消だけでなく、バックヤード業務の標準化と若返りをもたらす戦略的投資となります。
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-stone-100">
+                    <h3 class="text-xl font-semibold mb-2 flex items-center"><span class="text-emerald-600 mr-2">&#128200;</span>静岡県内 小売業の有効求人倍率推移</h3>
+                    <p class="text-sm text-stone-500 mb-4">慢性的な人手不足により、採用難易度は年々上昇しています。（※シミュレーション値）</p>
+                    <div class="chart-container">
+                        <canvas id="laborTrendChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-stone-100">
+                    <h3 class="text-xl font-semibold mb-2 flex items-center"><span class="text-emerald-600 mr-2">&#128101;</span>田子重 店舗バックヤード従業員 年齢構成比</h3>
+                    <p class="text-sm text-stone-500 mb-4">50代以上が半数を超えており、技術継承と持続可能性に課題があります。（※推計値）</p>
+                    <div class="chart-container">
+                        <canvas id="ageDemographicsChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="sec-deployment" class="view-section hidden animate-fade-in">
+            <div class="mb-8">
+                <h2 class="text-3xl font-bold text-stone-800 mb-4">配置計画と対象業務</h2>
+                <p class="text-lg text-stone-600 leading-relaxed bg-white p-6 rounded-xl shadow-sm border border-stone-100">
+                    技能実習制度では、従事できる業務が法律で定められています。スーパーマーケットの場合、「惣菜製造業」や「食品加工」などのバックヤード業務が中心となります。田子重の強みである「美味しいお惣菜」や「新鮮な生鮮食品」の加工部門へ配置することで、店舗運営の基盤を強固にします。
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div class="lg:col-span-1 bg-white p-6 rounded-xl shadow-sm border border-stone-100 flex flex-col items-center justify-center">
+                    <h3 class="text-xl font-semibold mb-4 text-center w-full border-b pb-2">想定配属部門比率</h3>
+                    <div class="chart-container" style="height: 250px;">
+                        <canvas id="roleAllocationChart"></canvas>
+                    </div>
+                    <p class="text-sm text-stone-500 mt-4 text-center">※複数店舗での第1期生受入想定（計10名）</p>
+                </div>
+
+                <div class="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="bg-white border-l-4 border-emerald-500 p-5 rounded-r-xl shadow-sm hover:shadow-md transition cursor-pointer" onclick="showRoleDetail('souzai')">
+                        <div class="text-3xl mb-2">&#127857;</div>
+                        <h4 class="font-bold text-lg mb-1">惣菜製造</h4>
+                        <p class="text-stone-600 text-sm">弁当、揚げ物、煮物などの調理・盛り付け業務。最も受入実績が作りやすい分野です。</p>
+                        <button class="mt-3 text-emerald-600 text-sm font-semibold hover:text-emerald-800">詳細を見る &rarr;</button>
+                    </div>
+                    <div class="bg-white border-l-4 border-blue-500 p-5 rounded-r-xl shadow-sm hover:shadow-md transition cursor-pointer" onclick="showRoleDetail('suisan')">
+                        <div class="text-3xl mb-2">&#128031;</div>
+                        <h4 class="font-bold text-lg mb-1">水産加工</h4>
+                        <p class="text-stone-600 text-sm">鮮魚の調理、刺身の造り、パック詰めなど。技術習得目標が明確な分野です。</p>
+                        <button class="mt-3 text-blue-600 text-sm font-semibold hover:text-blue-800">詳細を見る &rarr;</button>
+                    </div>
+                    <div class="bg-white border-l-4 border-red-500 p-5 rounded-r-xl shadow-sm hover:shadow-md transition cursor-pointer" onclick="showRoleDetail('seiniku')">
+                        <div class="text-3xl mb-2">&#129385;</div>
+                        <h4 class="font-bold text-lg mb-1">精肉加工</h4>
+                        <p class="text-stone-600 text-sm">スライサーを使用した肉のカット、計量、パック詰め。衛生管理の徹底が求められます。</p>
+                        <button class="mt-3 text-red-600 text-sm font-semibold hover:text-red-800">詳細を見る &rarr;</button>
+                    </div>
+                    <div class="bg-white border-l-4 border-yellow-500 p-5 rounded-r-xl shadow-sm hover:shadow-md transition cursor-pointer" onclick="showRoleDetail('nousan')">
+                        <div class="text-3xl mb-2">&#127813;</div>
+                        <h4 class="font-bold text-lg mb-1">農産（青果）</h4>
+                        <p class="text-stone-600 text-sm">野菜・果物のカット、袋詰め、鮮度チェック。※職種要件の確認が必要です。</p>
+                        <button class="mt-3 text-yellow-600 text-sm font-semibold hover:text-yellow-800">詳細を見る &rarr;</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="role-detail-panel" class="mt-8 bg-emerald-50 p-6 rounded-xl border border-emerald-100 hidden">
+                <div class="flex justify-between items-start">
+                    <h3 id="role-detail-title" class="text-2xl font-bold text-emerald-800"></h3>
+                    <button onclick="document.getElementById('role-detail-panel').classList.add('hidden')" class="text-stone-400 hover:text-stone-600 text-xl font-bold">&times;</button>
+                </div>
+                <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <h4 class="font-semibold text-stone-700 mb-2 border-b border-emerald-200 pb-1">主な作業内容</h4>
+                        <ul id="role-detail-tasks" class="list-disc list-inside text-stone-600 space-y-1 text-sm"></ul>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-stone-700 mb-2 border-b border-emerald-200 pb-1">受入時の留意点</h4>
+                        <p id="role-detail-notes" class="text-stone-600 text-sm"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="sec-roadmap" class="view-section hidden animate-fade-in">
+            <div class="mb-8">
+                <h2 class="text-3xl font-bold text-stone-800 mb-4">受入までのロードマップ</h2>
+                <p class="text-lg text-stone-600 leading-relaxed bg-white p-6 rounded-xl shadow-sm border border-stone-100">
+                    技能実習生の受け入れには、監理団体の選定から入国、配属まで約半年〜8ヶ月程度の準備期間が必要です。法令遵守を徹底し、店舗スタッフと実習生双方が安心して働ける環境を段階的に構築します。各ステップをクリックすると詳細が表示されます。
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div class="lg:col-span-1">
+                    <div class="relative border-l-2 border-emerald-200 ml-4 space-y-8 pb-8">
+                        
+                        <div class="relative group cursor-pointer" onclick="updateRoadmapDetail(0)">
+                            <div class="absolute -left-[11px] top-1 w-5 h-5 rounded-full bg-white border-4 border-emerald-500 group-hover:bg-emerald-100 transition"></div>
+                            <div class="pl-6">
+                                <span class="text-xs font-bold text-emerald-600 tracking-wider">STEP 1 (Month 1)</span>
+                                <h3 class="text-lg font-bold text-stone-800 mt-1">方針決定・監理団体選定</h3>
+                            </div>
+                        </div>
+
+                        <div class="relative group cursor-pointer" onclick="updateRoadmapDetail(1)">
+                            <div class="absolute -left-[11px] top-1 w-5 h-5 rounded-full bg-white border-4 border-stone-300 group-hover:border-emerald-400 transition" id="node-1"></div>
+                            <div class="pl-6">
+                                <span class="text-xs font-bold text-stone-500 tracking-wider">STEP 2 (Month 2-3)</span>
+                                <h3 class="text-lg font-bold text-stone-800 mt-1">現地面接・人材決定</h3>
+                            </div>
+                        </div>
+
+                        <div class="relative group cursor-pointer" onclick="updateRoadmapDetail(2)">
+                            <div class="absolute -left-[11px] top-1 w-5 h-5 rounded-full bg-white border-4 border-stone-300 group-hover:border-emerald-400 transition" id="node-2"></div>
+                            <div class="pl-6">
+                                <span class="text-xs font-bold text-stone-500 tracking-wider">STEP 3 (Month 4-6)</span>
+                                <h3 class="text-lg font-bold text-stone-800 mt-1">現地講習・申請手続き</h3>
+                            </div>
+                        </div>
+
+                        <div class="relative group cursor-pointer" onclick="updateRoadmapDetail(3)">
+                            <div class="absolute -left-[11px] top-1 w-5 h-5 rounded-full bg-white border-4 border-stone-300 group-hover:border-emerald-400 transition" id="node-3"></div>
+                            <div class="pl-6">
+                                <span class="text-xs font-bold text-stone-500 tracking-wider">STEP 4 (Month 7)</span>
+                                <h3 class="text-lg font-bold text-stone-800 mt-1">入国・国内法定講習</h3>
+                            </div>
+                        </div>
+
+                        <div class="relative group cursor-pointer" onclick="updateRoadmapDetail(4)">
+                            <div class="absolute -left-[11px] top-1 w-5 h-5 rounded-full bg-white border-4 border-stone-300 group-hover:border-emerald-400 transition" id="node-4"></div>
+                            <div class="pl-6">
+                                <span class="text-xs font-bold text-stone-500 tracking-wider">STEP 5 (Month 8〜)</span>
+                                <h3 class="text-lg font-bold text-stone-800 mt-1">店舗配属・実習開始</h3>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="lg:col-span-2">
+                    <div id="roadmap-detail-card" class="bg-white p-8 rounded-xl shadow-md border border-stone-100 h-full">
+                        <div class="inline-block px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-sm font-bold mb-4" id="rm-step-badge">STEP 1</div>
+                        <h3 class="text-2xl font-bold text-stone-800 mb-4" id="rm-title">方針決定・監理団体選定</h3>
+                        <p class="text-stone-600 mb-6 leading-relaxed" id="rm-desc">
+                            田子重としての受け入れ目的、対象店舗、対象職種（惣菜・水産など）、人数を決定します。その後、優良な「監理団体（協同組合など）」を選定し、加入手続きを行います。監理団体のサポート体制がプロジェクトの成否を大きく左右します。
+                        </p>
+                        <div class="bg-stone-50 p-4 rounded-lg border border-stone-200">
+                            <h4 class="font-bold text-stone-700 mb-2 flex items-center"><span class="mr-2">&#9888;&#65039;</span> 田子重側のアクション</h4>
+                            <ul class="list-disc list-inside text-sm text-stone-600 space-y-2" id="rm-actions">
+                                <li>社内プロジェクトチームの発足</li>
+                                <li>受入可能店舗のバックヤード面積・指導員有無の確認</li>
+                                <li>複数監理団体との面談と見積もり比較</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="sec-simulation" class="view-section hidden animate-fade-in">
+            <div class="mb-8">
+                <h2 class="text-3xl font-bold text-stone-800 mb-4">効果・コストシミュレーション</h2>
+                <p class="text-lg text-stone-600 leading-relaxed bg-white p-6 rounded-xl shadow-sm border border-stone-100">
+                    受け入れ人数に応じた概算コストと、それによって確保できる労働時間をシミュレーションします。初期投資はかかりますが、最長3〜5年間にわたりフルタイムの安定した戦力が確保できる点が最大のメリットです。
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div class="bg-white p-8 rounded-xl shadow-md border border-stone-100">
+                    <h3 class="text-xl font-bold text-stone-800 mb-6">受入人数の設定</h3>
+                    
+                    <div class="mb-8">
+                        <label for="trainee-slider" class="block text-sm font-medium text-stone-700 mb-4 flex justify-between">
+                            <span>受入予定人数</span>
+                            <span class="text-2xl font-bold text-emerald-600"><span id="slider-value">6</span>名</span>
+                        </label>
+                        <input type="range" id="trainee-slider" min="1" max="20" value="6" class="w-full h-2 bg-stone-200 rounded-lg appearance-none cursor-pointer accent-emerald-600">
+                        <div class="flex justify-between text-xs text-stone-400 mt-2">
+                            <span>1名</span>
+                            <span>20名</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-stone-50 p-4 rounded-lg border border-stone-200">
+                        <h4 class="font-semibold text-stone-700 mb-3 border-b pb-2">配属シミュレーション例</h4>
+                        <div class="flex justify-between items-center mb-2 text-sm">
+                            <span class="text-stone-600">A店舗 (大型)</span>
+                            <span class="font-bold text-stone-800"><span id="store-a-val">3</span>名</span>
+                        </div>
+                        <div class="flex justify-between items-center mb-2 text-sm">
+                            <span class="text-stone-600">B店舗 (中型)</span>
+                            <span class="font-bold text-stone-800"><span id="store-b-val">2</span>名</span>
+                        </div>
+                        <div class="flex justify-between items-center text-sm">
+                            <span class="text-stone-600">C店舗 (中型)</span>
+                            <span class="font-bold text-stone-800"><span id="store-c-val">1</span>名</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="bg-gradient-to-br from-emerald-500 to-emerald-700 p-6 rounded-xl shadow-md text-white flex flex-col justify-center">
+                        <div class="text-emerald-100 text-sm font-bold mb-1">確保できる月間総労働時間</div>
+                        <div class="text-4xl font-black mb-2"><span id="res-hours">960</span><span class="text-xl font-normal"> 時間/月</span></div>
+                        <p class="text-xs text-emerald-100 opacity-80">※1名あたり月間160時間稼働で計算。深刻なシフト穴を恒久的に埋めることができます。</p>
+                    </div>
+                    
+                    <div class="bg-white p-6 rounded-xl shadow-md border border-stone-100 flex flex-col justify-center">
+                        <div class="text-stone-500 text-sm font-bold mb-1 flex items-center"><span class="text-blue-500 mr-1">&#128176;</span> 概算初期費用総額</div>
+                        <div class="text-3xl font-black text-stone-800 mb-2"><span id="res-initial">300</span><span class="text-lg font-normal text-stone-600"> 万円</span></div>
+                        <p class="text-xs text-stone-400">※面接渡航費、入国前講習、申請費用など。1名あたり約50万円想定（住居準備費除く）。</p>
+                    </div>
+
+                    <div class="bg-white sm:col-span-2 p-6 rounded-xl shadow-md border border-stone-100">
+                        <div class="text-stone-500 text-sm font-bold mb-1 flex items-center"><span class="text-orange-500 mr-1">&#128202;</span> 毎月の概算ランニングコスト</div>
+                        <div class="text-3xl font-black text-stone-800 mb-2"><span id="res-monthly">114</span><span class="text-lg font-normal text-stone-600"> 万円/月</span></div>
+                        <div class="w-full bg-stone-100 rounded-full h-2.5 mt-2 mb-1">
+                            <div class="bg-orange-400 h-2.5 rounded-full" style="width: 80%"></div>
+                        </div>
+                        <div class="flex justify-between text-xs text-stone-500">
+                            <span>基本給与等: 約<span id="res-salary">96</span>万円</span>
+                            <span>監理費等: 約<span id="res-kanri">18</span>万円</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="bg-stone-800 text-stone-400 py-8 text-center text-sm">
+        <p>株式会社田子重 外国人技能実習生 受入促進プロジェクト用 デモアプリケーション</p>
+        <p class="mt-2">※本アプリのデータおよびシミュレーション結果は架空の推計値です。</p>
+    </footer>
+
+    <script>
+        const colors = {
+            primary: '#10b981',
+            secondary: '#3b82f6',
+            warning: '#f59e0b',
+            danger: '#ef4444',
+            bg: '#f5f5f4',
+            text: '#292524'
+        };
+
+        let laborChartInstance = null;
+        let ageChartInstance = null;
+        let roleChartInstance = null;
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.view-section').forEach(el => {
+                el.classList.add('hidden');
+                el.classList.remove('animate-fade-in');
+            });
+            
+            const target = document.getElementById(tabId);
+            target.classList.remove('hidden');
+            void target.offsetWidth; 
+            target.classList.add('animate-fade-in');
+
+            document.querySelectorAll('.nav-btn').forEach(el => {
+                el.classList.remove('border-emerald-500', 'text-emerald-700');
+                el.classList.add('border-transparent', 'text-stone-500');
+            });
+            document.getElementById('nav-' + tabId).classList.add('border-emerald-500', 'text-emerald-700');
+            document.getElementById('nav-' + tabId).classList.remove('border-transparent', 'text-stone-500');
+
+            if (tabId === 'sec-background') {
+                initBackgroundCharts();
+            } else if (tabId === 'sec-deployment') {
+                initDeploymentCharts();
+            }
+        }
+
+        const roleData = {
+            souzai: {
+                title: "惣菜製造業務の詳細",
+                tasks: ["各種弁当の盛り付け、パック詰め", "揚げ物（天ぷら、フライ等）の調理補助", "煮物、サラダ等の計量およびパック詰め", "調理器具の洗浄、作業場の清掃・衛生管理"],
+                notes: "店舗ごとの味のブレを防ぐため、写真付きの標準作業手順書（SOP）の整備が非常に有効です。やけど等の労災防止教育を徹底する必要があります。"
+            },
+            suisan: {
+                title: "水産加工業務の詳細",
+                tasks: ["丸魚の水洗い、内臓処理（下処理）", "三枚おろし、切り身加工", "刺身の盛り付け、ツマの配置", "商品へのラベル貼り、陳列補助"],
+                notes: "刃物を使用するため、安全教育が最優先です。実習生の国籍によっては生魚を扱う文化がない場合があるため、衛生観念の基礎から丁寧に指導します。"
+            },
+            seiniku: {
+                title: "精肉加工業務の詳細",
+                tasks: ["スライサーを利用した肉のカット補助", "ひき肉加工、味付け肉の製造", "計量、トレーへの盛り付け、ラップ包装", "作業台および機材のアルコール消毒"],
+                notes: "低温環境（冷蔵室）での作業となるため、防寒着の支給や体調管理への配慮が必要です。機械の安全装置の取り扱い教育を徹底します。"
+            },
+            nousan: {
+                title: "農産（青果）業務の詳細",
+                tasks: ["白菜、キャベツなどのカット（1/2、1/4等）", "袋詰め、ラップ包装、ネット詰め", "傷みチェック、鮮度管理の補助", "バックヤードの整理整頓"],
+                notes: "技能実習の職種としての適用範囲（単なる袋詰めだけでは不可等の要件）について、監理団体と事前に詳細を協議し、適切な実習計画を作成します。"
+            }
+        };
+
+        function showRoleDetail(role) {
+            const panel = document.getElementById('role-detail-panel');
+            const data = roleData[role];
+            
+            document.getElementById('role-detail-title').textContent = data.title;
+            
+            const ul = document.getElementById('role-detail-tasks');
+            ul.innerHTML = '';
+            data.tasks.forEach(task => {
+                const li = document.createElement('li');
+                li.textContent = task;
+                ul.appendChild(li);
+            });
+            
+            document.getElementById('role-detail-notes').textContent = data.notes;
+            
+            panel.classList.remove('hidden');
+            panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        const roadmapData = [
+            {
+                step: "STEP 1",
+                title: "方針決定・監理団体選定",
+                desc: "田子重としての受け入れ目的、対象店舗、対象職種（惣菜・水産など）、人数を決定します。その後、優良な「監理団体（協同組合など）」を選定し、加入手続きを行います。監理団体のサポート体制がプロジェクトの成否を大きく左右します。",
+                actions: ["社内プロジェクトチームの発足", "受入可能店舗のバックヤード面積・指導員有無の確認", "複数監理団体との面談と見積もり比較"]
+            },
+            {
+                step: "STEP 2",
+                title: "現地面接・人材決定",
+                desc: "監理団体を通じて現地の送り出し機関から求職者を集め、現地面接またはオンライン面接を実施します。技能だけでなく、人柄や日本で働く意欲、協調性を重視して選考します。",
+                actions: ["求人票（労働条件・待遇）の作成", "面接担当者の選定と選考基準のすり合わせ", "内定者への自社紹介（動画等の活用）"]
+            },
+            {
+                step: "STEP 3",
+                title: "現地講習・申請手続き",
+                desc: "内定者は現地で約3〜4ヶ月間、日本語や日本の生活習慣についての講習を受けます。同時に、日本側では外国人技能実習機構への計画認定申請や、出入国在留管理局へのビザ申請等を行います。",
+                actions: ["実習計画書の作成（監理団体と共同）", "雇用契約書の締結", "実習生用の宿舎（アパート等）の確保と生活備品の準備"]
+            },
+            {
+                step: "STEP 4",
+                title: "入国・国内法定講習",
+                desc: "実習生が日本に入国します。入国後約1ヶ月間は、監理団体の施設等で日本の法律、警察・消防の指導、より実践的な日本語や生活ルールについての法定講習を受講します。この間はまだ店舗での勤務はできません。",
+                actions: ["入国時の出迎え（任意・推奨）", "住民登録、銀行口座開設のサポート（監理団体と連携）", "配属店舗での受け入れ準備（ユニフォーム、名札等の手配）"]
+            },
+            {
+                step: "STEP 5",
+                title: "店舗配属・実習開始",
+                desc: "法定講習を終えた実習生が各店舗に配属され、いよいよ業務（実習）がスタートします。最初は言葉の壁や文化の違いで戸惑うことも多いため、技能実習指導員と生活指導員を中心に、店舗全体で温かくサポートする体制が必要です。",
+                actions: ["店舗スタッフへの事前の異文化理解研修", "OJTによる段階的な業務指導とマニュアルの活用", "定期的な面談とメンタルケアの実施"]
+            }
+        ];
+
+        function updateRoadmapDetail(index) {
+            const data = roadmapData[index];
+            document.getElementById('rm-step-badge').textContent = data.step;
+            document.getElementById('rm-title').textContent = data.title;
+            document.getElementById('rm-desc').textContent = data.desc;
+            
+            const ul = document.getElementById('rm-actions');
+            ul.innerHTML = '';
+            data.actions.forEach(action => {
+                const li = document.createElement('li');
+                li.textContent = action;
+                ul.appendChild(li);
+            });
+
+            for(let i=1; i<=4; i++) {
+                const node = document.getElementById('node-' + i);
+                if(node) {
+                    node.classList.remove('border-emerald-500');
+                    node.classList.add('border-stone-300');
+                }
+            }
+            if(index > 0) {
+                const activeNode = document.getElementById('node-' + index);
+                if(activeNode) {
+                    activeNode.classList.remove('border-stone-300');
+                    activeNode.classList.add('border-emerald-500');
+                }
+            }
+        }
+
+        function initBackgroundCharts() {
+            if (laborChartInstance) laborChartInstance.destroy();
+            if (ageChartInstance) ageChartInstance.destroy();
+
+            const ctxLabor = document.getElementById('laborTrendChart').getContext('2d');
+            laborChartInstance = new Chart(ctxLabor, {
+                type: 'line',
+                data: {
+                    labels: ['2019', '2020', '2021', '2022', '2023', '2024'],
+                    datasets: [{
+                        label: '静岡県 小売業有効求人倍率',
+                        data: [1.32, 1.15, 1.28, 1.45, 1.62, 1.78],
+                        borderColor: colors.primary,
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        borderWidth: 3,
+                        tension: 0.3,
+                        fill: true,
+                        pointBackgroundColor: '#ffffff',
+                        pointBorderColor: colors.primary,
+                        pointRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom' },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ' + context.parsed.y + '倍';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            min: 1.0,
+                            title: { display: true, text: '倍率' }
+                        }
+                    }
+                }
+            });
+
+            const ctxAge = document.getElementById('ageDemographicsChart').getContext('2d');
+            ageChartInstance = new Chart(ctxAge, {
+                type: 'bar',
+                data: {
+                    labels: ['20代以下', '30代', '40代', '50代', '60代以上'],
+                    datasets: [{
+                        label: '従業員構成比 (%)',
+                        data: [10, 15, 20, 35, 20],
+                        backgroundColor: [
+                            '#d6d3d1', '#a8a29e', '#78716c', colors.primary, '#059669'
+                        ],
+                        borderWidth: 0,
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.parsed.y + '%';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 50,
+                            title: { display: true, text: '構成比 (%)' }
+                        }
+                    }
+                }
+            });
+        }
+
+        function initDeploymentCharts() {
+            if (roleChartInstance) roleChartInstance.destroy();
+            
+            const ctxRole = document.getElementById('roleAllocationChart').getContext('2d');
+            roleChartInstance = new Chart(ctxRole, {
+                type: 'doughnut',
+                data: {
+                    labels: ['惣菜製造', '水産加工', '精肉加工', '農産'],
+                    datasets: [{
+                        data: [50, 30, 10, 10],
+                        backgroundColor: [
+                            colors.primary,
+                            colors.secondary,
+                            colors.danger,
+                            colors.warning
+                        ],
+                        borderWidth: 2,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '65%',
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            labels: {
+                                boxWidth: 12,
+                                padding: 15
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        const slider = document.getElementById('trainee-slider');
+        
+        function calculateSimulation() {
+            const count = parseInt(slider.value);
+            document.getElementById('slider-value').textContent = count;
+            
+            let storeA = Math.ceil(count * 0.5);
+            let storeB = Math.ceil((count - storeA) * 0.6);
+            let storeC = count - storeA - storeB;
+            
+            document.getElementById('store-a-val').textContent = storeA;
+            document.getElementById('store-b-val').textContent = storeB;
+            document.getElementById('store-c-val').textContent = storeC;
+
+            const hours = count * 160;
+            document.getElementById('res-hours').textContent = hours.toLocaleString();
+
+            const initialCostPerPerson = 50; 
+            const initialTotal = count * initialCostPerPerson;
+            document.getElementById('res-initial').textContent = initialTotal.toLocaleString();
+
+            const salaryPerPerson = 16; 
+            const kanriPerPerson = 3; 
+            const totalMonthlySalary = count * salaryPerPerson;
+            const totalMonthlyKanri = count * kanriPerPerson;
+            const monthlyTotal = totalMonthlySalary + totalMonthlyKanri;
+
+            document.getElementById('res-monthly').textContent = monthlyTotal.toLocaleString();
+            document.getElementById('res-salary').textContent = totalMonthlySalary.toLocaleString();
+            document.getElementById('res-kanri').textContent = totalMonthlyKanri.toLocaleString();
+        }
+
+        slider.addEventListener('input', calculateSimulation);
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initBackgroundCharts();
+            calculateSimulation();
+        });
+
+    </script>
+</body>
+</html>
